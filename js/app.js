@@ -1,6 +1,6 @@
 /**
  * URBAN BYTE - App.js
- * Lógica de negocio: Fetch, Carrito, Eventos principales
+ * Lógica de negocio: Fetch, Carrito.
  */
 
 // 1. VARIABLES GLOBALES DE ESTADO
@@ -10,7 +10,6 @@ let cart = JSON.parse(localStorage.getItem('urban_byte_cart')) || [];
 // 2. FUNCIONES DE CARGA DE DATOS (FETCH)
 const fetchProducts = async () => {
     try {
-        // Intentamos cargar desde nuestro "backend" JSON local
         const response = await fetch('./data/data.json');
 
         if (!response.ok) {
@@ -52,9 +51,12 @@ const renderProducts = (items) => {
                 <h3>${product.title}</h3>
                 <div class="product-footer">
                     <span class="price">$${product.price.toFixed(2)}</span>
-                    <button class="add-btn" onclick="addToCart(${product.id})">
-                        <i class="fas fa-plus"></i>
-                    </button>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" min="1" value="1" id="qty-${product.id}" class="qty-input-card">
+                        <button class="add-btn" onclick="addToCart(${product.id})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -68,13 +70,11 @@ const renderCart = () => {
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p class="empty-msg">El carrito está vacío</p>';
         cartTotal.innerText = '$0.00';
-        // Ocultamos botones si no hay items
         checkoutBtn.classList.add('hidden');
         clearCartBtn.classList.add('hidden');
         return;
     }
 
-    // Mostramos botones si hay items
     checkoutBtn.classList.remove('hidden');
     clearCartBtn.classList.remove('hidden');
 
@@ -85,7 +85,14 @@ const renderCart = () => {
             <img src="${item.image}" alt="${item.title}">
             <div class="item-info">
                 <h4>${item.title}</h4>
-                <p>$${item.price.toFixed(2)}</p>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                        <span class="qty-input">${item.quantity}</span>
+                        <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
+                    <p style="font-weight: 600;">$${(item.price * item.quantity).toFixed(2)}</p>
+                </div>
             </div>
             <button class="remove-item" onclick="removeFromCart(${index})">
                 <i class="fas fa-trash"></i>
@@ -98,32 +105,56 @@ const renderCart = () => {
 };
 
 const updateTotals = () => {
-    const total = cart.reduce((acc, item) => acc + item.price, 0);
-    cartTotal.innerText = `$${total.toFixed(2)}`;
-    cartCount.innerText = cart.length;
+    const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const count = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-    // Sincronizar con LocalStorage
+    cartTotal.innerText = `$${total.toFixed(2)}`;
+    cartCount.innerText = count;
+
     localStorage.setItem('urban_byte_cart', JSON.stringify(cart));
 };
 
 // 4. FUNCIONES DEL CARRITO (LÓGICA)
 window.addToCart = (id) => {
     const product = products.find(p => p.id === id);
+    const qtyInput = document.getElementById(`qty-${id}`);
+    const quantityToAdd = parseInt(qtyInput.value) || 1;
+
     if (product) {
-        cart.push(product);
+        const existingProduct = cart.find(item => item.id === id);
+
+        if (existingProduct) {
+            existingProduct.quantity += quantityToAdd;
+        } else {
+            cart.push({ ...product, quantity: quantityToAdd });
+        }
+
         updateTotals();
         renderCart();
 
-        // Feedback visual
-        toast(`"${product.title}" agregado al carrito`);
+        toast(`Agregado: ${quantityToAdd} x "${product.title}"`);
+
+        // Reset del input
+        qtyInput.value = 1;
 
         cartIcon.classList.add('bounce');
         setTimeout(() => cartIcon.classList.remove('bounce'), 300);
     }
 };
 
+window.changeQuantity = (index, delta) => {
+    cart[index].quantity += delta;
+
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+        toast('Producto eliminado', 'info');
+    }
+
+    renderCart();
+    updateTotals();
+};
+
 window.removeFromCart = (index) => {
-    const itemRemoved = cart[index];
     cart.splice(index, 1);
     renderCart();
     updateTotals();

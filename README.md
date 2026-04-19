@@ -5,6 +5,7 @@ Este proyecto es un simulador interactivo de una tienda de e-commerce desarrolla
 ## Funcionalidades
 - **Carga Dinámica**: Los productos se cargan desde un archivo `data.json` local mediante `fetch`.
 - **Carrito de Compras**: Permite agregar, eliminar productos y vaciar el carrito por completo.
+- **Gestión de Cantidades**: Agrupa productos idénticos y permite ver la cantidad y el subtotal por item.
 - **Persistencia**: El carrito se guarda automáticamente en `localStorage` para que no se pierda al recargar la página.
 - **Filtrado**: Sistema de categorías para navegar por el catálogo.
 - **Circuit de Compra**: Simulación de finalización de compra con feedback visual.

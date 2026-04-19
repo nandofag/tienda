@@ -403,3 +403,53 @@ header {
     display: none !important;
 }
 
+/* Controles de Cantidad */
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--glass);
+    padding: 0.3rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass);
+}
+
+.qty-input {
+    width: 40px;
+    background: transparent;
+    border: none;
+    color: white;
+    text-align: center;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.qty-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.qty-btn:hover {
+    background: var(--primary-hover);
+}
+
+.product-footer .qty-input-card {
+    width: 50px;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass);
+    background: var(--card-bg);
+    color: white;
+    text-align: center;
+    margin-right: 0.5rem;
+}
+
